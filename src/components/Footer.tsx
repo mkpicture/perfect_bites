@@ -25,13 +25,13 @@ const Footer = () => {
             <h4 className="font-semibold text-foreground mb-4">Contact</h4>
             <div className="space-y-3">
               <a
-                href="https://wa.me/24106732615"
+                href="https://wa.me/250791693947"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors"
               >
                 <Phone className="w-4 h-4" />
-                <span>+241 06 73 26 15</span>
+                <span>+250 79 169 39 47</span>
               </a>
               <div className="flex items-center gap-3 text-muted-foreground">
                 <MapPin className="w-4 h-4" />

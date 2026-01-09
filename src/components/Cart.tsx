@@ -8,7 +8,7 @@ interface CartProps {
   onClose: () => void;
 }
 
-const WHATSAPP_NUMBER = '24106732615';
+const WHATSAPP_NUMBER = '250791693947';
 
 const Cart = ({ isOpen, onClose }: CartProps) => {
   const { items, updateQuantity, removeItem, clearCart, totalPrice } = useCart();
