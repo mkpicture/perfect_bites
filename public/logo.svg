@@ -1,97 +1,109 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
   <defs>
     <style>
-      .cursive { font-family: 'Brush Script MT', 'Lucida Handwriting', 'Segoe Script', cursive; }
-      .sans-serif { font-family: Arial, sans-serif; font-weight: bold; letter-spacing: 2px; }
+      .cursive { font-family: 'Brush Script MT', 'Lucida Handwriting', 'Segoe Script', cursive; font-weight: normal; }
+      .sans-serif { font-family: Arial, Helvetica, sans-serif; font-weight: bold; letter-spacing: 2px; }
     </style>
+    <!-- Mask for circle with bite -->
+    <clipPath id="circleBite">
+      <path d="M 50,200 
+               A 150,150 0 0,1 200,50
+               A 150,150 0 0,1 350,200
+               A 150,150 0 0,1 200,350
+               A 150,150 0 0,1 50,200 Z
+               M 280,70
+               C 295,65 310,75 315,90
+               C 320,100 318,110 310,115
+               C 300,120 285,115 280,100
+               C 275,85 275,75 280,70 Z"/>
+    </clipPath>
   </defs>
   
-  <!-- Background: medium-dark pink -->
+  <!-- Background: medium-dark pink (#d47a8f) -->
   <rect width="400" height="400" fill="#d47a8f"/>
   
-  <!-- Light pink circle with bite mark (scalloped at top-right) -->
-  <g transform="translate(200, 200)">
-    <!-- Main circle -->
-    <circle cx="0" cy="0" r="150" fill="#f5c2d1"/>
-    
-    <!-- Bite mark (scalloped indentation) at top-right -->
-    <path d="M 80, -120
-             Q 95, -130 110, -125
-             Q 125, -120 135, -105
-             Q 140, -90 135, -75
-             Q 130, -85 120, -90
-             Q 105, -95 90, -90
-             Q 82, -100 80, -120 Z" 
-          fill="#d47a8f"/>
-    
-    <!-- Border dots around circle -->
-    <g fill="#000">
-      <!-- Top arc (around bite) -->
-      <circle cx="-120" cy="-85" r="2.5"/>
-      <circle cx="-90" cy="-105" r="2.5"/>
-      <circle cx="-60" cy="-120" r="2.5"/>
-      <circle cx="-30" cy="-130" r="2.5"/>
-      <circle cx="0" cy="-135" r="2.5"/>
-      <circle cx="30" cy="-130" r="2.5"/>
-      <circle cx="60" cy="-118" r="2.5"/>
-      <circle cx="85" cy="-100" r="2.5"/>
-      
-      <!-- Right side -->
-      <circle cx="110" cy="-70" r="2.5"/>
-      <circle cx="125" cy="-40" r="2.5"/>
-      <circle cx="135" cy="-10" r="2.5"/>
-      <circle cx="140" cy="20" r="2.5"/>
-      <circle cx="140" cy="50" r="2.5"/>
-      
-      <!-- Bottom -->
-      <circle cx="135" cy="80" r="2.5"/>
-      <circle cx="125" cy="110" r="2.5"/>
-      <circle cx="110" cy="135" r="2.5"/>
-      <circle cx="90" cy="155" r="2.5"/>
-      <circle cx="60" cy="170" r="2.5"/>
-      <circle cx="30" cy="180" r="2.5"/>
-      <circle cx="0" cy="185" r="2.5"/>
-      <circle cx="-30" cy="180" r="2.5"/>
-      <circle cx="-60" cy="170" r="2.5"/>
-      <circle cx="-90" cy="155" r="2.5"/>
-      <circle cx="-110" cy="135" r="2.5"/>
-      
-      <!-- Left side -->
-      <circle cx="-125" cy="110" r="2.5"/>
-      <circle cx="-135" cy="80" r="2.5"/>
-      <circle cx="-140" cy="50" r="2.5"/>
-      <circle cx="-140" cy="20" r="2.5"/>
-      <circle cx="-135" cy="-10" r="2.5"/>
-      <circle cx="-125" cy="-40" r="2.5"/>
-      <circle cx="-110" cy="-70" r="2.5"/>
-    </g>
+  <!-- Light pink circle (#f5c2d1) with stylized bite mark (scalloped/wavy indentation at top-right) -->
+  <g clip-path="url(#circleBite)">
+    <circle cx="200" cy="200" r="150" fill="#f5c2d1"/>
   </g>
   
-  <!-- Chef hat in upper-left quadrant -->
-  <g transform="translate(120, 85)">
-    <!-- Hat base -->
-    <ellipse cx="0" cy="30" rx="24" ry="6" fill="none" stroke="#000" stroke-width="2.5"/>
-    <!-- Hat top -->
-    <path d="M -22,30 L -18,6 L -12,0 L 0,4 L 12,0 L 18,6 L 22,30 Z" 
+  <!-- Redraw circle border with dots, including the bite area -->
+  <g>
+    <!-- Top-left to top-center -->
+    <circle cx="60" cy="85" r="2.5" fill="#000"/>
+    <circle cx="85" cy="65" r="2.5" fill="#000"/>
+    <circle cx="110" cy="55" r="2.5" fill="#000"/>
+    <circle cx="140" cy="52" r="2.5" fill="#000"/>
+    <circle cx="170" cy="55" r="2.5" fill="#000"/>
+    
+    <!-- Around bite area (top-right) - wavy pattern -->
+    <circle cx="195" cy="58" r="2.5" fill="#000"/>
+    <circle cx="220" cy="68" r="2.5" fill="#000"/>
+    <circle cx="240" cy="85" r="2.5" fill="#000"/>
+    <circle cx="255" cy="105" r="2.5" fill="#000"/>
+    <circle cx="265" cy="128" r="2.5" fill="#000"/>
+    <circle cx="270" cy="152" r="2.5" fill="#000"/>
+    
+    <!-- Right side -->
+    <circle cx="272" cy="175" r="2.5" fill="#000"/>
+    <circle cx="275" cy="200" r="2.5" fill="#000"/>
+    <circle cx="275" cy="225" r="2.5" fill="#000"/>
+    
+    <!-- Bottom-right -->
+    <circle cx="270" cy="250" r="2.5" fill="#000"/>
+    <circle cx="260" cy="272" r="2.5" fill="#000"/>
+    <circle cx="245" cy="290" r="2.5" fill="#000"/>
+    <circle cx="225" cy="305" r="2.5" fill="#000"/>
+    <circle cx="200" cy="312" r="2.5" fill="#000"/>
+    
+    <!-- Bottom-left -->
+    <circle cx="175" cy="305" r="2.5" fill="#000"/>
+    <circle cx="155" cy="290" r="2.5" fill="#000"/>
+    <circle cx="140" cy="272" r="2.5" fill="#000"/>
+    <circle cx="130" cy="250" r="2.5" fill="#000"/>
+    
+    <!-- Left side -->
+    <circle cx="125" cy="225" r="2.5" fill="#000"/>
+    <circle cx="125" cy="200" r="2.5" fill="#000"/>
+    <circle cx="125" cy="175" r="2.5" fill="#000"/>
+    <circle cx="130" cy="152" r="2.5" fill="#000"/>
+    <circle cx="140" cy="130" r="2.5" fill="#000"/>
+    <circle cx="155" cy="110" r="2.5" fill="#000"/>
+  </g>
+  
+  <!-- Chef hat in upper-left quadrant (inside circle) -->
+  <g transform="translate(110, 75)">
+    <!-- Hat base ellipse -->
+    <ellipse cx="0" cy="32" rx="26" ry="7" fill="none" stroke="#000" stroke-width="2.5"/>
+    <!-- Hat top (tall chef hat) -->
+    <path d="M -24,32 
+             L -20,4 
+             L -14,-2 
+             L -7,0 
+             L 0,5 
+             L 7,0 
+             L 14,-2 
+             L 20,4 
+             L 24,32 Z" 
           fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <!-- Vertical folds -->
-    <line x1="-12" y1="0" x2="-12" y2="30" stroke="#000" stroke-width="1.5"/>
-    <line x1="12" y1="0" x2="12" y2="30" stroke="#000" stroke-width="1.5"/>
-    <!-- Decorative dots -->
-    <circle cx="-6" cy="18" r="2" fill="#000"/>
-    <circle cx="6" cy="18" r="2" fill="#000"/>
+    <!-- Vertical fold lines on hat -->
+    <line x1="-14" y1="-2" x2="-14" y2="32" stroke="#000" stroke-width="1.5"/>
+    <line x1="14" y1="-2" x2="14" y2="32" stroke="#000" stroke-width="1.5"/>
+    <!-- Decorative dots on hat -->
+    <circle cx="-7" cy="20" r="2" fill="#000"/>
+    <circle cx="7" cy="20" r="2" fill="#000"/>
   </g>
   
-  <!-- "The perfect bites" text -->
-  <text x="200" y="180" text-anchor="middle" class="cursive" font-size="36" fill="#000">
+  <!-- "The perfect bites" text in flowing cursive/handwritten style -->
+  <text x="200" y="175" text-anchor="middle" class="cursive" font-size="36" fill="#000">
     <tspan x="200" dy="0">The</tspan>
   </text>
-  <text x="200" y="220" text-anchor="middle" class="cursive" font-size="42" fill="#000">
+  <text x="200" y="215" text-anchor="middle" class="cursive" font-size="44" fill="#000">
     perfect bites
   </text>
   
-  <!-- "FOOD & PASTRIES" tagline -->
-  <text x="200" y="265" text-anchor="middle" class="sans-serif" font-size="16" fill="#000">
+  <!-- "FOOD & PASTRIES" tagline in sans-serif uppercase -->
+  <text x="200" y="260" text-anchor="middle" class="sans-serif" font-size="16" fill="#000">
     FOOD &amp; PASTRIES
   </text>
 </svg>
