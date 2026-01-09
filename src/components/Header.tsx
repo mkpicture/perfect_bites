@@ -13,9 +13,11 @@ const Header = ({ onCartClick }: HeaderProps) => {
     <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
-            <span className="text-2xl">👨‍🍳</span>
-          </div>
+          <img 
+            src="/logo.svg" 
+            alt="The Perfect Bites Logo" 
+            className="w-12 h-12 object-contain"
+          />
           <div>
             <h1 className="font-serif text-xl md:text-2xl font-bold text-foreground">
               The Perfect Bites
