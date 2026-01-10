@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Minus, Plus, Trash2, MessageCircle, User, Clock, MapPin, Loader2 } from 'lucide-react';
+import { X, Minus, Plus, Trash2, MessageCircle, User, Clock, MapPin, Loader2, Package } from 'lucide-react';
 import { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { formatPrice } from '@/lib/menuData';
@@ -11,6 +11,8 @@ interface CartProps {
 
 const WHATSAPP_NUMBER = '250791693947';
 
+type OrderType = 'delivery' | 'pickup';
+
 interface Location {
   latitude: number;
   longitude: number;
@@ -18,6 +20,7 @@ interface Location {
 
 const Cart = ({ isOpen, onClose }: CartProps) => {
   const { items, updateQuantity, removeItem, clearCart, totalPrice } = useCart();
+  const [orderType, setOrderType] = useState<OrderType>('delivery');
   const [clientName, setClientName] = useState('');
   const [deliveryTime, setDeliveryTime] = useState('');
   const [location, setLocation] = useState<Location | null>(null);
@@ -74,20 +77,32 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
   const generateWhatsAppMessage = () => {
     if (items.length === 0) return '';
 
+    const isDelivery = orderType === 'delivery';
+    
     let message = '🍽️ *Nouvelle Commande - The Perfect Bites*\n\n';
+    
+    // Type de commande
+    message += isDelivery ? '📍 *Type:* Livraison\n' : '🛍 *Type:* Retrait sur place\n';
     
     // Informations du client
     if (clientName.trim()) {
       message += `👤 *Nom:* ${clientName.trim()}\n`;
     }
     if (deliveryTime.trim()) {
-      message += `🕐 *Heure de livraison souhaitée:* ${deliveryTime.trim()}\n`;
+      if (isDelivery) {
+        message += `🕐 *Heure de livraison souhaitée:* ${deliveryTime.trim()}\n`;
+      } else {
+        message += `🕐 *Heure de retrait souhaitée:* ${deliveryTime.trim()}\n`;
+      }
     }
-    if (location) {
+    
+    // Localisation uniquement pour la livraison
+    if (isDelivery && location) {
       const mapsLink = generateGoogleMapsLink(location.latitude, location.longitude);
       message += `📍 *Ma localisation:* ${mapsLink}\n`;
     }
-    if (clientName.trim() || deliveryTime.trim() || location) {
+    
+    if (clientName.trim() || deliveryTime.trim() || (isDelivery && location)) {
       message += '\n';
     }
     
@@ -99,8 +114,15 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
 
     message += `\n💰 *Total: ${formatPrice(totalPrice)}*\n\n`;
     
-    if (!location) {
-      message += '📍 Merci de préciser votre adresse de livraison.';
+    // Message final selon le type
+    if (isDelivery) {
+      if (location) {
+        message += '📍 Voir ma localisation ci-dessus.';
+      } else {
+        message += '📍 Merci de préciser votre adresse de livraison.';
+      }
+    } else {
+      message += '🛍 Je viendrai récupérer ma commande sur place.';
     }
 
     return encodeURIComponent(message);
@@ -114,6 +136,16 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
     setClientName('');
     setDeliveryTime('');
     setLocation(null);
+    setLocationError(null);
+  };
+
+  // Réinitialiser la localisation si on passe en retrait sur place
+  const handleOrderTypeChange = (type: OrderType) => {
+    setOrderType(type);
+    if (type === 'pickup') {
+      setLocation(null);
+      setLocationError(null);
+    }
   };
 
   return (
@@ -215,9 +247,44 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
             {/* Footer */}
             {items.length > 0 && (
               <div className="p-4 border-t border-border space-y-4">
+                {/* Type de commande */}
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-foreground text-sm">Type de commande</h4>
+                  <div className="grid grid-cols-2 gap-2">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleOrderTypeChange('delivery')}
+                      className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg border-2 transition-all ${
+                        orderType === 'delivery'
+                          ? 'border-primary bg-primary/10 text-primary font-semibold'
+                          : 'border-border bg-secondary text-muted-foreground hover:border-primary/50'
+                      }`}
+                    >
+                      <MapPin className="w-4 h-4" />
+                      <span className="text-sm">Livraison</span>
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleOrderTypeChange('pickup')}
+                      className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg border-2 transition-all ${
+                        orderType === 'pickup'
+                          ? 'border-primary bg-primary/10 text-primary font-semibold'
+                          : 'border-border bg-secondary text-muted-foreground hover:border-primary/50'
+                      }`}
+                    >
+                      <Package className="w-4 h-4" />
+                      <span className="text-sm">Retrait</span>
+                    </motion.button>
+                  </div>
+                </div>
+
                 {/* Client Information Form */}
                 <div className="space-y-3">
-                  <h4 className="font-semibold text-foreground text-sm">Informations de livraison</h4>
+                  <h4 className="font-semibold text-foreground text-sm">
+                    {orderType === 'delivery' ? 'Informations de livraison' : 'Informations de retrait'}
+                  </h4>
                   
                   {/* Nom du client */}
                   <div className="relative">
@@ -231,21 +298,26 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
                     />
                   </div>
 
-                  {/* Heure de livraison */}
+                  {/* Heure de livraison/retrait */}
                   <div className="relative">
                     <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <input
                       type="text"
-                      placeholder="Heure de livraison souhaitée (ex: 14h30, 18h00)"
+                      placeholder={
+                        orderType === 'delivery'
+                          ? 'Heure de livraison souhaitée (ex: 14h30, 18h00)'
+                          : 'Heure de retrait souhaitée (ex: 14h30, 18h00)'
+                      }
                       value={deliveryTime}
                       onChange={(e) => setDeliveryTime(e.target.value)}
                       className="w-full pl-10 pr-4 py-2.5 bg-secondary border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                     />
                   </div>
 
-                  {/* Bouton Partager ma localisation */}
-                  <div>
-                    {location ? (
+                  {/* Bouton Partager ma localisation - uniquement pour livraison */}
+                  {orderType === 'delivery' && (
+                    <div>
+                      {location ? (
                       <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
                         <MapPin className="w-4 h-4 text-green-600" />
                         <span className="text-sm text-green-600 font-medium flex-1">
@@ -279,10 +351,11 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
                         )}
                       </motion.button>
                     )}
-                    {locationError && (
-                      <p className="text-xs text-destructive mt-1">{locationError}</p>
-                    )}
-                  </div>
+                      {locationError && (
+                        <p className="text-xs text-destructive mt-1">{locationError}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex justify-between items-center pt-2">
@@ -309,6 +382,7 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
                     setDeliveryTime('');
                     setLocation(null);
                     setLocationError(null);
+                    setOrderType('delivery');
                   }}
                   className="w-full py-3 text-muted-foreground hover:text-destructive transition-colors text-sm"
                 >
