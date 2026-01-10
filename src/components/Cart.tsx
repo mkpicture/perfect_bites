@@ -18,14 +18,20 @@ interface Location {
   longitude: number;
 }
 
+const PACKAGING_FEE_PER_MEAL = 500;
+
 const Cart = ({ isOpen, onClose }: CartProps) => {
-  const { items, updateQuantity, removeItem, clearCart, totalPrice } = useCart();
+  const { items, updateQuantity, removeItem, clearCart, totalPrice, totalItems } = useCart();
   const [orderType, setOrderType] = useState<OrderType>('delivery');
   const [clientName, setClientName] = useState('');
   const [deliveryTime, setDeliveryTime] = useState('');
   const [location, setLocation] = useState<Location | null>(null);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+
+  // Calcul des frais d'emballage
+  const packagingFee = totalItems * PACKAGING_FEE_PER_MEAL;
+  const finalTotal = totalPrice + packagingFee;
 
   const getLocation = () => {
     if (!navigator.geolocation) {
@@ -112,7 +118,17 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
       message += `• ${item.name} x${item.quantity} - ${formatPrice(item.price * item.quantity)}\n`;
     });
 
-    message += `\n💰 *Total: ${formatPrice(totalPrice)}*\n\n`;
+    message += '\n';
+    
+    // Sous-total et frais d'emballage
+    const packagingFeeCalc = totalItems * PACKAGING_FEE_PER_MEAL;
+    const finalTotalCalc = totalPrice + packagingFeeCalc;
+    
+    message += `📦 *Sous-total:* ${formatPrice(totalPrice)}\n`;
+    if (totalItems > 0) {
+      message += `📦 *Emballage (${totalItems} repas × ${PACKAGING_FEE_PER_MEAL} RWF):* ${formatPrice(packagingFeeCalc)}\n`;
+    }
+    message += `\n💰 *Total: ${formatPrice(finalTotalCalc)}*\n\n`;
     
     // Message final selon le type
     if (isDelivery) {
@@ -358,11 +374,30 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
                   )}
                 </div>
 
-                <div className="flex justify-between items-center pt-2">
-                  <span className="text-muted-foreground">Total</span>
-                  <span className="text-2xl font-bold text-foreground">
-                    {formatPrice(totalPrice)}
-                  </span>
+                {/* Détail des frais */}
+                <div className="space-y-2 pt-2 border-t border-border">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground">Sous-total</span>
+                    <span className="text-foreground font-medium">
+                      {formatPrice(totalPrice)}
+                    </span>
+                  </div>
+                  {totalItems > 0 && (
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-muted-foreground">
+                        Emballage ({totalItems} repas × {PACKAGING_FEE_PER_MEAL} RWF)
+                      </span>
+                      <span className="text-foreground font-medium">
+                        {formatPrice(packagingFee)}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center pt-2 border-t border-border">
+                    <span className="text-muted-foreground font-semibold">Total</span>
+                    <span className="text-2xl font-bold text-foreground">
+                      {formatPrice(finalTotal)}
+                    </span>
+                  </div>
                 </div>
 
                 <motion.button
