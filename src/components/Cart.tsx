@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Minus, Plus, Trash2, MessageCircle } from 'lucide-react';
+import { X, Minus, Plus, Trash2, MessageCircle, User, Clock } from 'lucide-react';
+import { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { formatPrice } from '@/lib/menuData';
 
@@ -12,11 +13,25 @@ const WHATSAPP_NUMBER = '250791693947';
 
 const Cart = ({ isOpen, onClose }: CartProps) => {
   const { items, updateQuantity, removeItem, clearCart, totalPrice } = useCart();
+  const [clientName, setClientName] = useState('');
+  const [deliveryTime, setDeliveryTime] = useState('');
 
   const generateWhatsAppMessage = () => {
     if (items.length === 0) return '';
 
     let message = '🍽️ *Nouvelle Commande - The Perfect Bites*\n\n';
+    
+    // Informations du client
+    if (clientName.trim()) {
+      message += `👤 *Nom:* ${clientName.trim()}\n`;
+    }
+    if (deliveryTime.trim()) {
+      message += `🕐 *Heure de livraison souhaitée:* ${deliveryTime.trim()}\n`;
+    }
+    if (clientName.trim() || deliveryTime.trim()) {
+      message += '\n';
+    }
+    
     message += '📝 *Détails de la commande:*\n\n';
 
     items.forEach((item) => {
@@ -33,6 +48,9 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
     const message = generateWhatsAppMessage();
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
     window.open(whatsappUrl, '_blank');
+    // Optionnel: vider le formulaire après l'envoi
+    setClientName('');
+    setDeliveryTime('');
   };
 
   return (
@@ -134,7 +152,36 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
             {/* Footer */}
             {items.length > 0 && (
               <div className="p-4 border-t border-border space-y-4">
-                <div className="flex justify-between items-center">
+                {/* Client Information Form */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-foreground text-sm">Informations de livraison</h4>
+                  
+                  {/* Nom du client */}
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      placeholder="Votre nom"
+                      value={clientName}
+                      onChange={(e) => setClientName(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 bg-secondary border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                    />
+                  </div>
+
+                  {/* Heure de livraison */}
+                  <div className="relative">
+                    <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      placeholder="Heure de livraison souhaitée (ex: 14h30, 18h00)"
+                      value={deliveryTime}
+                      onChange={(e) => setDeliveryTime(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 bg-secondary border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center pt-2">
                   <span className="text-muted-foreground">Total</span>
                   <span className="text-2xl font-bold text-foreground">
                     {formatPrice(totalPrice)}
@@ -152,7 +199,11 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
                 </motion.button>
 
                 <button
-                  onClick={clearCart}
+                  onClick={() => {
+                    clearCart();
+                    setClientName('');
+                    setDeliveryTime('');
+                  }}
                   className="w-full py-3 text-muted-foreground hover:text-destructive transition-colors text-sm"
                 >
                   Vider le panier
