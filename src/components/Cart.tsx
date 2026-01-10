@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Minus, Plus, Trash2, MessageCircle, User, Clock } from 'lucide-react';
+import { X, Minus, Plus, Trash2, MessageCircle, User, Clock, MapPin, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { formatPrice } from '@/lib/menuData';
@@ -11,10 +11,65 @@ interface CartProps {
 
 const WHATSAPP_NUMBER = '250791693947';
 
+interface Location {
+  latitude: number;
+  longitude: number;
+}
+
 const Cart = ({ isOpen, onClose }: CartProps) => {
   const { items, updateQuantity, removeItem, clearCart, totalPrice } = useCart();
   const [clientName, setClientName] = useState('');
   const [deliveryTime, setDeliveryTime] = useState('');
+  const [location, setLocation] = useState<Location | null>(null);
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+
+  const getLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError('La géolocalisation n\'est pas supportée par votre navigateur');
+      return;
+    }
+
+    setIsGettingLocation(true);
+    setLocationError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const newLocation = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        };
+        setLocation(newLocation);
+        setIsGettingLocation(false);
+      },
+      (error) => {
+        setIsGettingLocation(false);
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            setLocationError('Autorisation de géolocalisation refusée');
+            break;
+          case error.POSITION_UNAVAILABLE:
+            setLocationError('Position indisponible');
+            break;
+          case error.TIMEOUT:
+            setLocationError('Délai d\'attente dépassé');
+            break;
+          default:
+            setLocationError('Erreur lors de la récupération de la position');
+            break;
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  };
+
+  const generateGoogleMapsLink = (lat: number, lng: number): string => {
+    return `https://www.google.com/maps?q=${lat},${lng}`;
+  };
 
   const generateWhatsAppMessage = () => {
     if (items.length === 0) return '';
@@ -28,7 +83,11 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
     if (deliveryTime.trim()) {
       message += `🕐 *Heure de livraison souhaitée:* ${deliveryTime.trim()}\n`;
     }
-    if (clientName.trim() || deliveryTime.trim()) {
+    if (location) {
+      const mapsLink = generateGoogleMapsLink(location.latitude, location.longitude);
+      message += `📍 *Ma localisation:* ${mapsLink}\n`;
+    }
+    if (clientName.trim() || deliveryTime.trim() || location) {
       message += '\n';
     }
     
@@ -39,7 +98,10 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
     });
 
     message += `\n💰 *Total: ${formatPrice(totalPrice)}*\n\n`;
-    message += '📍 Merci de préciser votre adresse de livraison.';
+    
+    if (!location) {
+      message += '📍 Merci de préciser votre adresse de livraison.';
+    }
 
     return encodeURIComponent(message);
   };
@@ -51,6 +113,7 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
     // Optionnel: vider le formulaire après l'envoi
     setClientName('');
     setDeliveryTime('');
+    setLocation(null);
   };
 
   return (
@@ -179,6 +242,47 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
                       className="w-full pl-10 pr-4 py-2.5 bg-secondary border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                     />
                   </div>
+
+                  {/* Bouton Partager ma localisation */}
+                  <div>
+                    {location ? (
+                      <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+                        <MapPin className="w-4 h-4 text-green-600" />
+                        <span className="text-sm text-green-600 font-medium flex-1">
+                          Localisation partagée ✓
+                        </span>
+                        <button
+                          onClick={() => setLocation(null)}
+                          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          Retirer
+                        </button>
+                      </div>
+                    ) : (
+                      <motion.button
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.99 }}
+                        onClick={getLocation}
+                        disabled={isGettingLocation}
+                        className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-secondary border border-border rounded-lg text-foreground hover:bg-secondary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isGettingLocation ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                            <span className="text-sm font-medium">Récupération...</span>
+                          </>
+                        ) : (
+                          <>
+                            <MapPin className="w-4 h-4 text-primary" />
+                            <span className="text-sm font-medium">Partager ma localisation</span>
+                          </>
+                        )}
+                      </motion.button>
+                    )}
+                    {locationError && (
+                      <p className="text-xs text-destructive mt-1">{locationError}</p>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex justify-between items-center pt-2">
@@ -203,6 +307,8 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
                     clearCart();
                     setClientName('');
                     setDeliveryTime('');
+                    setLocation(null);
+                    setLocationError(null);
                   }}
                   className="w-full py-3 text-muted-foreground hover:text-destructive transition-colors text-sm"
                 >
